@@ -1,0 +1,63 @@
+import sys
+import cv2
+ 
+def main():
+    if len(sys.argv) < 2:
+        print "Error - file name must be specified as first argument."
+        return
+ 
+    cap = cv2.VideoCapture()
+    cap.open(sys.argv[1])
+ 
+    if not cap.isOpened():
+        print "Fatal error - could not open video %s." % sys.argv[1]
+        return
+    else:
+        print "Parsing video %s..." % sys.argv[1]
+ 
+    # Do stuff with cap here.
+    width  = cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
+    height = cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+    print "Video Resolution: %d x %d" % (width, height)
+     
+    '''while True:
+        (rv, im) = cap.read()   # im is a valid image if and only if rv is true
+        if not rv:
+            break
+        # Do stuff with im here.
+     
+    frame_count = cap.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)  # current capture position
+    print "Read %d frames from video." % frame_count '''
+ 
+    # Allow the threshold to be passed as an optional second argument to the script.
+    threshold = 15
+    if len(sys.argv) > 2 and int(sys.argv[2]) > 0:
+        threshold = int(sys.argv[2])
+    print "Detecting scenes with threshold %d." % threshold
+     
+    last_mean = 0       # Mean pixel intensity of the *last* frame we processed.
+         
+    while True:
+        (rv, im) = cap.read()   # im is a valid image if and only if rv is true
+        if not rv:
+            break
+        frame_mean = im.mean()
+     
+        # Detect fade in from black.
+        if frame_mean >= threshold and last_mean < threshold:
+            print "Detected fade in at %dms (frame %d)." % (
+                cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC),
+                cap.get(cv2.cv.CV_CAP_PROP_POS_FRAMES) )
+     
+        # Detect fade out to black.
+        elif frame_mean < threshold and last_mean >= threshold:
+            print "Detected fade out at %dms (frame %d)." % (
+                cap.get(cv2.cv.CV_CAP_PROP_POS_MSEC),
+                cap.get(cv2.cv.CV_CAP_PROP_POS_FRAMES) )
+     
+        last_mean = frame_mean     # Store current mean to compare in next iteration.
+
+    cap.release()
+ 
+if __name__ == "__main__":
+    main()
