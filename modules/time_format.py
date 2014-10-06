@@ -2,8 +2,8 @@ import time
 import datetime
 
 def to_frame(subtitle_time):
-    start_time = subtitle_time[0][:13]
-    end_time = subtitle_time[0][17:]
+    start_time = subtitle_time[:13]
+    end_time = subtitle_time[17:]
     return _convert_(start_time), _convert_(end_time)
 
 def _convert_(input_time, FRAME_PER_SECOND=24):

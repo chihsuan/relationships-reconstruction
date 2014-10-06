@@ -17,6 +17,7 @@ import re
 from collections import Counter
 
 from modules import csv_io
+from modules import time_format
 
 MAX_KEYWORDS_IN_ONE_INTERVAL = 3
 OUTPUT_ROOT_PATH = 'output/'
@@ -82,8 +83,14 @@ def keyword_search(relationship_file, subtitle_file):
 
     # Find the max keyword count as leading keyword
     #keyword_list[0] = max(keyword_count, key=keyword_count.get)
+    
+    frame_to_keyword = []
+    for pair in time_to_keyword:
+        start_frame, end_frame = time_format.to_frame(pair[0])
+        new_pair = [start_frame, end_frame, pair[1]]
+        frame_to_keyword.append(new_pair)
 
-    csv_io.write_csv(OUTPUT_ROOT_PATH + 'search_result.csv', time_to_keyword)
+    csv_io.write_csv(OUTPUT_ROOT_PATH + 'search_result.csv', frame_to_keyword)
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keyword_list.csv', [keyword_list])
 
 def read_subtitle_file(subtitle_file):
