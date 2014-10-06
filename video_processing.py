@@ -36,8 +36,9 @@ class Pthread (threading.Thread):
         threadLock.release()
 
 
-def movie_prosessing(movie_file, two_entity_file, search_result_file):
-    two_entity_set = json_io.read_json(two_entity_file)
+def video_processing(movie_file, search_result_file:
+
+    # load frame-keyword files
     keyword_search_result = csv_io.read_csv(search_result_file)
 
     # load video
@@ -46,7 +47,7 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
     # crate a start_frame to end_frame dictionary for two_entity_set look up
     start_end = {}
     for row in keyword_search_result:
-        start_frame, end_frame = time_format.to_frame(row)
+        start_frame, end_frame = row[]
         while start_frame in start_end:
             start_frame = start_frame + 0.001
         while end_frame in start_end:
@@ -57,8 +58,8 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
     face_count = 0
     for keyword in two_entity_set:
         for start_frame in two_entity_set[keyword]:
-            frame_position = int(start_frame) - 24 * 10
-            finish_frame = start_end[start_frame] + 24 * 10
+            frame_position = int(start_frame) - 24 * 3
+            finish_frame = start_end[start_frame] + 24 * 3
             while frame_position <= finish_frame: 
                 print keyword
                 videoInput.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame_position)
@@ -71,8 +72,10 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
                     cv2.destroyAllWindows()
                     sys.exit(1)
                 
-                if len(face_position_list) == 1:
+                if len(face_position_list) >= 1:
                     print 'detected'
+                    # Role identify
+                    role_identify(rects, img)
                     image_name = keyword + str(frame_position) + '.jpg'
                     cv_image.output_image(rects, img, OUTPUT_PATH + '/img/' + image_name)
                     for face_position in face_position_list:
@@ -89,6 +92,8 @@ def movie_prosessing(movie_file, two_entity_file, search_result_file):
 
     json_io.write_json(OUTPUT_PATH + 'frame.json', frame) 
 
+def role_identify(rect, img):
+    pass
 
 if __name__ == '__main__':
-    movie_prosessing(sys.argv[1], sys.argv[2], sys.argv[3])
+    video_processing(sys.argv[1], sys.argv[2])
