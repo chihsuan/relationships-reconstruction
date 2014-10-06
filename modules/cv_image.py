@@ -10,9 +10,9 @@ OUTPUT_PATH = 'output/'
 def face_detect(img, framePosition, size):
 
     cascade = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
-    rects = cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=4, minSize=(85, 85), flags = cv.CV_HAAR_SCALE_IMAGE)
+    rects = cascade.detectMultiScale(img, scaleFactor=1.1, minNeighbors=4, minSize=size, flags = cv.CV_HAAR_SCALE_IMAGE)
     
-    #cv2.imshow("movie", img)
+    cv2.imshow("movie", img)
     if len(rects) == 0:
         return [], []
     rects[:,2:] += rects[:,:2]
