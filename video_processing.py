@@ -19,8 +19,8 @@ from modules import time_format
 from modules import cv_image
 from modules import cv_face
 
-FRAME_INTERVAL = 6
-EXPAND_TIME = 5
+FRAME_INTERVAL = 12
+EXPAND_TIME = 3
 OUTPUT_PATH = 'output/'
 
 class Pthread (threading.Thread):
@@ -48,12 +48,12 @@ def video_processing(movie_file, search_result_file, role_list_file):
     videoInput = cv2.VideoCapture(movie_file)
 
     frame = {}
-    face_count = 0
+    keyword_id = 0
     for row in keyword_search_result:
         start_frame, end_frame, keyword = float(row[0]), float(row[1]), row[2]
-        print start_frame, end_frame
-        frame_position = round(start_frame) #- 24 * EXPAND_TIME
-        finish_frame = round(end_frame) #+ 24 * EXPAND_TIME
+        frame_position = round(start_frame) - 24 * EXPAND_TIME
+        finish_frame = round(end_frame) + 24 * EXPAND_TIME
+        keyword_id += 1
         while frame_position <= finish_frame: 
             print keyword
             videoInput.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame_position)
@@ -61,7 +61,7 @@ def video_processing(movie_file, search_result_file, role_list_file):
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
             face_position_list, rects = cv_image.face_detect(gray, frame_position, (30, 30))
-            print face_position_list, rects
+            
             # Press ESC for close window 
             if 0xFF & cv2.waitKey(5) == 27:
                 cv2.destroyAllWindows()
@@ -74,14 +74,14 @@ def video_processing(movie_file, search_result_file, role_list_file):
                 cv_image.output_image(rects, img, image_name)
                 face_number = 0
                 for face_position in face_position_list:
-                    print role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
+                    role_name = role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
                     face_number += 1
-                    face_count += 1
-                    frame[face_count] = { 'keyword' : keyword, 
-                                              'face_position': face_position.tolist(),
-                                              'ID' : face_count,
-                                              'frame_position': frame_position,
-                                              'face_id': face_count} 
+                    frame[keyword + str(keyword_id)] = { 'keyword' : keyword, 
+                                          'face_position': face_position.tolist(),
+                                          'frame_position': frame_position,
+                                          'keyword_id' : keyword_id,
+                                          'name': role_name} 
+                    print role_name
             frame_position += FRAME_INTERVAL
     #close video  
     videoInput.release()
@@ -94,7 +94,8 @@ def role_identify(img_name, role_list):
         img2_name = 'input/roles/' + role + '.jpg' 
         rate = cv_face.reg(img_name, img2_name)
         similarity_rate[role] = rate
-    return max(similarity_rate, key=similarity_rate.get)
+    max_similarity_role = max(similarity_rate, key=similarity_rate.get)
+    return max_similarity_role #if similarity_rate[role] >= 0.3 else raw_input('Name is ?') 
         
 
 if __name__ == '__main__':
