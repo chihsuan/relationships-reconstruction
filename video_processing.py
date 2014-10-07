@@ -54,8 +54,8 @@ def video_processing(movie_file, search_result_file, role_list_file):
         frame_position = round(start_frame) - 24 * EXPAND_TIME
         finish_frame = round(end_frame) + 24 * EXPAND_TIME
         keyword_id += 1
+        keyword = keyword + '_t' + str(keyword_id)
         while frame_position <= finish_frame: 
-            print keyword
             videoInput.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame_position)
             flag, img = videoInput.read()
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -69,24 +69,27 @@ def video_processing(movie_file, search_result_file, role_list_file):
             
             if len(face_position_list) >= 1:
                 print "detect face..."
-            
+                
                 image_name = OUTPUT_PATH + 'img/' + keyword + str(int(frame_position))  
                 cv_image.output_image(rects, img, image_name)
+                
                 face_number = 0
                 for face_position in face_position_list:
                     role_name = role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
                     face_number += 1
-                    frame[keyword + str(keyword_id)] = { 'keyword' : keyword, 
-                                          'face_position': face_position.tolist(),
-                                          'frame_position': frame_position,
-                                          'keyword_id' : keyword_id,
-                                          'name': role_name} 
-                    print role_name
+                    if keyword in frame and role_name in frame[keyword]:
+                        frame[keyword][role_name]['weight'] += 1
+                    else:
+                        frame[keyword] = { role_name: {'keyword' : keyword, 
+                                            'face_position' : face_position.tolist(),
+                                            'frame_position' : frame_position,
+                                            'keyword_id' : keyword_id,
+                                            'weight' : 1 } }
             frame_position += FRAME_INTERVAL
     #close video  
     videoInput.release()
 
-    json_io.write_json(OUTPUT_PATH + 'frame.json', frame) 
+    json_io.write_json(OUTPUT_PATH + 'keyword_dic.json', frame) 
 
 def role_identify(img_name, role_list):
     similarity_rate = {}
