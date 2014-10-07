@@ -29,9 +29,11 @@ def draw_rects(img, rects, color):
 
 def output_image(rects, img, file_name):
     show = img.copy()
+    face_count = 0
     for x1, y1, x2, y2 in rects:
         face = img[y1:y2, x1:x2]
         cv2.rectangle(show, (x1-10, y1-10), (x2+5, y2+5), (127, 255, 0), 2) 
         cv2.imshow("detected", show)
         resize_face = cv2.resize(face, (150, 150), interpolation=cv2.INTER_CUBIC)
-        cv2.imwrite( file_name, resize_face)
+        cv2.imwrite( file_name + '-' + str(face_count) + '.jpg', resize_face)
+        face_count += 1

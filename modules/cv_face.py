@@ -1,12 +1,21 @@
+import commands
+
 import cv2
 import cv2.cv as cv
-#from numpy import *
 import numpy as np
 FLANN_INDEX_KDTREE = 1  # bug: flann enums are missing
 FLANN_INDEX_LSH    = 6
 
 matcher_set = {}
 detector_set = {}
+
+
+def reg(face1, face2):
+   match_rate = commands.getstatusoutput("br -algorithm \
+           FaceRecognition -compare " + face1 + " " + face2)
+   match_rate = float(match_rate[1].split('\n')[-1])
+   
+   return match_rate
 
 def init_feature(detectorType):
 

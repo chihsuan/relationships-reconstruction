@@ -6,7 +6,7 @@ def to_frame(subtitle_time):
     end_time = subtitle_time[17:]
     return _convert_(start_time), _convert_(end_time)
 
-def _convert_(input_time, FRAME_PER_SECOND=24):
+def _convert_(input_time, FRAME_PER_SECOND=23):
     format_time = time.strptime(input_time.split(',')[0], '%H:%M:%S' )
     frame = float(datetime.timedelta(hours=format_time.tm_hour, minutes=format_time.tm_min, 
         seconds=format_time.tm_sec).total_seconds() * FRAME_PER_SECOND) + float(input_time[-3:]) / 1000
