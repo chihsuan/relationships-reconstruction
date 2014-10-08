@@ -77,14 +77,16 @@ def video_processing(movie_file, search_result_file, role_list_file):
                 for face_position in face_position_list:
                     role_name = role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
                     face_number += 1
-                    if keyword in frame and role_name in frame[keyword]:
+                    if keyword_time not in frame:
+                        frame[keyword_time] = {}  
+                    if role_name in frame[keyword_time]:
                         frame[keyword_time][role_name]['weight'] += 1
                     else:
-                        frame[keyword_time] = { role_name: {'keyword' : keyword, 
+                        frame[keyword_time][role_name] = {'keyword' : keyword, 
                                                 'face_position' : face_position.tolist(),
                                                 'frame_position' : frame_position,
                                                 'keyword_id' : keyword_id,
-                                                'weight' : 1 } }
+                                                'weight' : 1 } 
             frame_position += FRAME_INTERVAL
     #close video  
     videoInput.release()
