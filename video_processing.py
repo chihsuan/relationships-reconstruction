@@ -54,7 +54,7 @@ def video_processing(movie_file, search_result_file, role_list_file):
         frame_position = round(start_frame) - 24 * EXPAND_TIME
         finish_frame = round(end_frame) + 24 * EXPAND_TIME
         keyword_id += 1
-        keyword = keyword + '_t' + str(keyword_id)
+        keyword_time = keyword + '_t' + str(keyword_id)
         while frame_position <= finish_frame: 
             videoInput.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame_position)
             flag, img = videoInput.read()
@@ -70,7 +70,7 @@ def video_processing(movie_file, search_result_file, role_list_file):
             if len(face_position_list) >= 1:
                 print "detect face..."
                 
-                image_name = OUTPUT_PATH + 'img/' + keyword + str(int(frame_position))  
+                image_name = OUTPUT_PATH + 'img/' + keyword  
                 cv_image.output_image(rects, img, image_name)
                 
                 face_number = 0
@@ -78,13 +78,13 @@ def video_processing(movie_file, search_result_file, role_list_file):
                     role_name = role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
                     face_number += 1
                     if keyword in frame and role_name in frame[keyword]:
-                        frame[keyword][role_name]['weight'] += 1
+                        frame[keyword_time][role_name]['weight'] += 1
                     else:
-                        frame[keyword] = { role_name: {'keyword' : keyword, 
-                                            'face_position' : face_position.tolist(),
-                                            'frame_position' : frame_position,
-                                            'keyword_id' : keyword_id,
-                                            'weight' : 1 } }
+                        frame[keyword_time] = { role_name: {'keyword' : keyword, 
+                                                'face_position' : face_position.tolist(),
+                                                'frame_position' : frame_position,
+                                                'keyword_id' : keyword_id,
+                                                'weight' : 1 } }
             frame_position += FRAME_INTERVAL
     #close video  
     videoInput.release()
