@@ -24,8 +24,8 @@ def neo4j_db(neo4j_url, data_path):
             else:
                 target = gdb.nodes.create(name=target_name) 
                 roles[target_name] = target
-            for attr in targets[target_name]:
-                source.relationships.create(str(attr), target)
+            for attr, val in targets[target_name].iteritems():
+                source.relationships.create(str(attr), target, value=val)
 
 if __name__=='__main__':
     neo4j_db("http://localhost:7474/db/data/", sys.argv[1])
