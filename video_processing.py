@@ -35,9 +35,11 @@ def video_processing(movie_file, search_result_file, role_list_file):
     frame = {}
     keyword_id = 0
     for row in keyword_search_result:
+
         start_frame, end_frame, keyword = float(row[0]), float(row[1]), row[2]
         frame_position = round(start_frame) - 24 * EXPAND_TIME
         finish_frame = round(end_frame) + 24 * EXPAND_TIME
+        
         keyword_id += 1
         keyword_time = keyword + '_t' + str(keyword_id)
         while frame_position <= finish_frame: 
@@ -68,24 +70,28 @@ def video_processing(movie_file, search_result_file, role_list_file):
                         frame[keyword_time][role_name]['weight'] += 1
                     else:
                         frame[keyword_time][role_name] = {'keyword' : keyword, 
-                                                'face_position' : face_position.tolist(),
-                                                'frame_position' : frame_position,
-                                                'keyword_id' : keyword_id,
-                                                'weight' : 1 } 
+                                                          'face_position' : face_position.tolist(),
+                                                          'frame_position' : frame_position,
+                                                          'keyword_id' : keyword_id,
+                                                          'weight' : 1 } 
             frame_position += FRAME_INTERVAL
+
     #close video  
     videoInput.release()
 
     json_io.write_json(OUTPUT_PATH + 'keywordt_roles.json', frame) 
 
 def role_identify(img_name, role_list):
+   
     similarity_rate = {}
     for role in role_list:
         img2_name = 'input/roles/' + role + '.jpg' 
         rate = cv_face.reg(img_name, img2_name)
         similarity_rate[role] = rate
+    
     max_similarity_role = max(similarity_rate, key=similarity_rate.get)
-    return max_similarity_role #if similarity_rate[role] >= 0.3 else raw_input('Name is ?') 
+    
+    return max_similarity_role
         
 
 if __name__ == '__main__':
