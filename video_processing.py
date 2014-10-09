@@ -23,21 +23,6 @@ FRAME_INTERVAL = 12
 EXPAND_TIME = 3
 OUTPUT_PATH = 'output/'
 
-class Pthread (threading.Thread):
-
-    def __init__(self, threadID, name, searchResult):
-        threading.Thread.__init__(self)
-        self.threadID = threadID
-        self.name = name
-        self.searchResult = searchResult
-
-    def run(self):
-        print self.name + ' start'
-        threadLock.acquire()
-        frameCapture(self.searchResult)
-        threadLock.release()
-
-
 def video_processing(movie_file, search_result_file, role_list_file):
 
     # load frame-keyword files
