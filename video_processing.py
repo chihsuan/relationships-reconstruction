@@ -55,12 +55,14 @@ def video_processing(movie_file, search_result_file, role_list_file):
             if len(face_position_list) >= 1:
                 print "detect face..."
                 
-                image_name = OUTPUT_PATH + 'img/' + keyword  
+                image_name = OUTPUT_PATH + 'img/' + keyword_time
                 cv_image.output_image(rects, img, image_name)
                 
                 face_number = 0
                 for face_position in face_position_list:
                     role_name = role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
+                    if not role_name:
+                        continue
                     face_number += 1
                     if keyword_time not in frame:
                         frame[keyword_time] = {}  
@@ -85,7 +87,7 @@ def role_identify(img_name, role_list):
         rate = cv_face.reg(img_name, img2_name)
         similarity_rate[role] = rate
     max_similarity_role = max(similarity_rate, key=similarity_rate.get)
-    return max_similarity_role #if similarity_rate[role] >= 0.3 else raw_input('Name is ?') 
+    return max_similarity_role if similarity_rate[role] >= 1.5 else [] #raw_input('Name is ?') 
         
 
 if __name__ == '__main__':
