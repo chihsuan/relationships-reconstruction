@@ -36,6 +36,7 @@ def video_processing(movie_file, search_result_file, role_list_file):
 
     frame = {}
     keyword_id = 0
+    face_number = 0
     for row in keyword_search_result:
 
         start_frame, end_frame, keyword = float(row[0]), float(row[1]), row[2]
@@ -62,11 +63,8 @@ def video_processing(movie_file, search_result_file, role_list_file):
                 image_name = OUTPUT_PATH + 'img/' + keyword_time
                 cv_image.output_image(rects, img, image_name)
                 
-                face_number = 0
                 for face_position in face_position_list:
                     role_name = role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
-                    if not role_name:
-                        continue
                     face_number += 1
                     if keyword_time not in frame:
                         frame[keyword_time] = {}  
@@ -92,6 +90,7 @@ def role_identify(img_name, role_list):
         for f in files:
             img2_name = roles_foldr + f 
             rate = cv_face.reg(img_name, img2_name)
+            print img2_name
             try:
                 role = pattern.search(f).groups()[0]
             except:
@@ -104,7 +103,7 @@ def role_identify(img_name, role_list):
     
     max_similarity_role = max(similarity_rate, key=similarity_rate.get)
     
-    return max_similarity_role if similarity_rate[role] >= 1.5 else [] #raw_input('Name is ?') 
+    return max_similarity_role #if similarity_rate[role] >= 1.5 else [] #raw_input('Name is ?') 
         
 
 if __name__ == '__main__':
