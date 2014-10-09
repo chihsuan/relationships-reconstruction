@@ -15,7 +15,7 @@ def build_bipartite_graph(keyword_dic_file):
     pair_bipartite_graph = to_pair(keyword_dic)
 
     json_io.write_json(OUTPUT_PATH + 'pair_graph.json', pair_bipartite_graph) 
-    json_io.write_json(OUTPUT_PATH + 'bi_grph.json', keyword_dic)
+    json_io.write_json(OUTPUT_PATH + 'single_graph.json', keyword_dic)
     
 def weight_normalize(keyword_dic):
 
@@ -39,7 +39,10 @@ def to_pair(keyword_dic):
                 for j in range(i+1, len(keys)):
                     role1 = roles[keys[i]]
                     role2 = roles[keys[j]]
-                    pair = keys[i] + '-' + keys[j]
+                    if keys[i] < keys[j]:
+                        pair = keys[i] + '-' + keys[j]
+                    else:
+                        pair = keys[j] + '-' + keys[i]
                     pair_bipartite_graph[keyword_t][pair] = {'keyword': role1['keyword'],
                                                              'weight': role1['weight'] + \
                                                                        role2['weight']}
