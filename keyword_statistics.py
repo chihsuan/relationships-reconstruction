@@ -22,18 +22,15 @@ from modules import time_format
 MAX_KEYWORDS_IN_ONE_INTERVAL = 3
 OUTPUT_ROOT_PATH = 'output/'
 
-def keyword_search(relationship_file, subtitle_file):
+def keyword_statistics(relationship_file, subtitle_file):
     
-    # Read files 
     relation_list = csv_io.read_csv(relationship_file)
     subtitle = read_subtitle_file(subtitle_file)
 
-    # Create regular expression pattern for reuse 
     relation_patterns = {}
     for relation in relation_list:
         relation_patterns[relation] = '[^(my)|^(your)|^(her)|^(his)|^(their)][\s]*' + relation.lower() + "[^'\w]"
 
-    # Find keyword
     time_to_keyword = []
     subtitle_interval = []
     keyword_number = 0
@@ -68,29 +65,13 @@ def keyword_search(relationship_file, subtitle_file):
     count = Counter(values[1] for values in time_to_keyword)
     total_count = sum(keyword_count.values())
     
-    '''filter_list = []
-
-    for rel, freq in count.iteritems():
-        if float(freq)/total_count >= 0.012:
-            print rel
-        else:
-            filter_list.append(rel)
-
-    for name in filter_list:
-        keyword_list.remove(name)
-        time_to_keyword = list( (values[0], values[1]) for values in time_to_keyword if values[1] != name) '''
-
-
-    # Find the max keyword count as leading keyword
-    #keyword_list[0] = max(keyword_count, key=keyword_count.get)
-    
     frame_to_keyword = []
     for pair in time_to_keyword:
         start_frame, end_frame = time_format.to_frame(pair[0])
         new_pair = [start_frame, end_frame, pair[1]]
         frame_to_keyword.append(new_pair)
 
-    csv_io.write_csv(OUTPUT_ROOT_PATH + 'search_result.csv', frame_to_keyword)
+    csv_io.write_csv(OUTPUT_ROOT_PATH + 'statistics_result.csv', frame_to_keyword)
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keyword_list.csv', [keyword_list])
 
 def read_subtitle_file(subtitle_file):
@@ -102,7 +83,6 @@ def read_subtitle_file(subtitle_file):
 
 if __name__=='__main__':
     if len(sys.argv) == 4:
-        keyword_search(sys.argv[1], sys.argv[2])
+        keyword_statistics(sys.argv[1], sys.argv[2])
     else:
-        keyword_search('input/relationship.csv', 'input/movie.srt')
-
+        keyword_statistics('input/relationship.csv', 'input/movie.srt')
