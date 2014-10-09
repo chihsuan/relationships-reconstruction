@@ -91,7 +91,7 @@ def video_processing(movie_file, search_result_file, role_list_file):
     #close video  
     videoInput.release()
 
-    json_io.write_json(OUTPUT_PATH + 'keyword_dic.json', frame) 
+    json_io.write_json(OUTPUT_PATH + 'keywordt_roles.json', frame) 
 
 def role_identify(img_name, role_list):
     similarity_rate = {}
