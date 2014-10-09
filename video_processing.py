@@ -60,11 +60,14 @@ def video_processing(movie_file, search_result_file, role_list_file):
             if len(face_position_list) >= 1:
                 print "detect face..."
                 
-                image_name = OUTPUT_PATH + 'img/' + keyword_time
+                image_name = OUTPUT_PATH + 'img/' + keyword_time + str(face_number) 
                 cv_image.output_image(rects, img, image_name)
-                
+              
+                count = 0
                 for face_position in face_position_list:
-                    role_name = role_identify( image_name + '-' + str(face_number) + '.jpg', role_list)
+                    role_name = role_identify( image_name + '-' + str(face_number) \
+                            + str(count) + '.jpg', role_list)
+                    count += 1
                     face_number += 1
                     if keyword_time not in frame:
                         frame[keyword_time] = {}  
