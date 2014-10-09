@@ -10,9 +10,23 @@ OUTPUT_PATH = 'output/'
 def build_bipartite_graph(keyword_dic_file):    
     
     keyword_dic = json_io.read_json(keyword_dic_file)
+    keyword_dic = weight_normalize(keyword_dic)
+    
     pair_bipartite_graph = to_pair(keyword_dic)
 
     json_io.write_json(OUTPUT_PATH + 'pair_graph.json', pair_bipartite_graph) 
+    json_io.write_json(OUTPUT_PATH + 'bi_grph.json', keyword_dic)
+    
+def weight_normalize(keyword_dic):
+
+    for keyword_t, roles in keyword_dic.iteritems():
+        total_weight = 0
+        for role, values in roles.iteritems():
+            total_weight += values['weight']
+        for role, values in roles.iteritems():
+            values['weight'] = float(values['weight']) / total_weight
+
+    return keyword_dic
 
 def to_pair(keyword_dic):
 
