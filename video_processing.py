@@ -50,7 +50,7 @@ def video_processing(movie_file, search_result_file, role_list_file):
             flag, img = videoInput.read()
             gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
             gray = cv2.equalizeHist(gray)
-            face_position_list, rects = cv_image.face_detect(gray, frame_position, (30, 30))
+            face_position_list, rects = cv_image.face_detect(gray, frame_position, (40, 40))
             
             # Press ESC for close window 
             if 0xFF & cv2.waitKey(5) == 27:
@@ -69,6 +69,8 @@ def video_processing(movie_file, search_result_file, role_list_file):
                             + str(count) + '.jpg', role_list)
                     count += 1
                     face_number += 1
+                    if not role_name:
+                        continue
                     if keyword_time not in frame:
                         frame[keyword_time] = {}  
                     if role_name in frame[keyword_time]:
@@ -106,7 +108,7 @@ def role_identify(img_name, role_list):
     
     max_similarity_role = max(similarity_rate, key=similarity_rate.get)
     
-    return max_similarity_role #if similarity_rate[role] >= 1.5 else [] #raw_input('Name is ?') 
+    return max_similarity_role if similarity_rate[role] >= 1.5 else [] #raw_input('Name is ?') 
         
 
 if __name__ == '__main__':
