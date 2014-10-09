@@ -8,7 +8,8 @@ input: 1.movie_file (video format) 2. search_result_file
 '''
 
 import sys
-import threading
+import os
+import re
 
 import cv2
 import cv2.cv as cv
@@ -22,6 +23,7 @@ from modules import cv_face
 FRAME_INTERVAL = 12
 EXPAND_TIME = 3
 OUTPUT_PATH = 'output/'
+roles_foldr = 'input/roles/'
 
 def video_processing(movie_file, search_result_file, role_list_file):
 
@@ -82,12 +84,21 @@ def video_processing(movie_file, search_result_file, role_list_file):
     json_io.write_json(OUTPUT_PATH + 'keywordt_roles.json', frame) 
 
 def role_identify(img_name, role_list):
-   
+    pattern = re.compile(r'(\D+)\d?\.') 
     similarity_rate = {}
-    for role in role_list:
-        img2_name = 'input/roles/' + role + '.jpg' 
-        rate = cv_face.reg(img_name, img2_name)
-        similarity_rate[role] = rate
+    for root, _, files in os.walk(roles_foldr):
+        for f in files:
+            img2_name = roles_foldr + f 
+            rate = cv_face.reg(img_name, img2_name)
+            try:
+                role = pattern.search(f).groups()[0]
+            except:
+                sys.exit(1)
+
+            if role in similarity_rate:
+                similarity_rate[role] += rate
+            else:
+                similarity_rate[role] = rate
     
     max_similarity_role = max(similarity_rate, key=similarity_rate.get)
     
