@@ -65,11 +65,11 @@ def video_processing(movie_file, search_result_file, role_list_file):
               
                 count = 0
                 for face_position in face_position_list:
-                    role_name = role_identify( image_name + '-' + str(face_number) \
-                            + str(count) + '.jpg', role_list)
+                    role_name = role_identify( image_name + '-' + \
+                                            str(count) + '.jpg', role_list)
                     count += 1
                     face_number += 1
-                    if not role_name:
+                    if role_name == []:
                         continue
                     if keyword_time not in frame:
                         frame[keyword_time] = {}  
@@ -93,22 +93,21 @@ def role_identify(img_name, role_list):
     similarity_rate = {}
     for root, _, files in os.walk(roles_foldr):
         for f in files:
+            if f == '.DS_Store':
+                continue
             img2_name = roles_foldr + f 
             rate = cv_face.reg(img_name, img2_name)
-            print img2_name
-            try:
-                role = pattern.search(f).groups()[0]
-            except:
-                sys.exit(1)
+            similarity_rate[f] = rate
 
-            if role in similarity_rate:
-                similarity_rate[role] += rate
-            else:
-                similarity_rate[role] = rate
-    
     max_similarity_role = max(similarity_rate, key=similarity_rate.get)
-    
-    return max_similarity_role if similarity_rate[role] >= 1.5 else [] #raw_input('Name is ?') 
+    print img_name, max_similarity_role, similarity_rate[max_similarity_role]
+
+    try:
+        role_name = pattern.search(max_similarity_role).groups()[0]
+    except:
+        sys.exit(1)
+           
+    return role_name  if similarity_rate[max_similarity_role] >= 0.3 else [] #raw_input('Name is ?') 
         
 
 if __name__ == '__main__':
