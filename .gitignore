@@ -57,3 +57,4 @@ output
 input/*.mp4
 input/*.avi
 input/*.mov
+graph.db
