@@ -21,7 +21,7 @@ from modules import cv_image
 from modules import cv_face
 
 FRAME_INTERVAL = 12
-EXPAND_TIME = 3
+EXPAND_TIME = 5
 OUTPUT_PATH = 'output/'
 roles_foldr = 'input/roles/'
 
@@ -98,6 +98,8 @@ def role_identify(img_name, role_list):
             img2_name = roles_foldr + f 
             rate = cv_face.reg(img_name, img2_name)
             similarity_rate[f] = rate
+            if rate >= 0.9:
+                break
 
     max_similarity_role = max(similarity_rate, key=similarity_rate.get)
     print img_name, max_similarity_role, similarity_rate[max_similarity_role]
