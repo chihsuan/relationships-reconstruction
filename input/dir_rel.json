@@ -1,0 +1,21 @@
+{
+    "Dad":{
+        "Dad": "Grandpa",
+        "Son": "Sibing",
+        "Mom": "Grandmother"
+    },
+    "Son":{
+        "Dad": "Sibing",
+        "Son": "Grandson"
+    },
+    "Mom":{
+        "Dad": "Grandpa"
+    },
+    "Father":{
+        "Dad": "Grandpa",
+        "Son": "Sibing"
+    },
+    "Daughter":{
+        "Son": "Grandson"
+    }
+ }

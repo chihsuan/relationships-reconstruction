@@ -1,0 +1,12 @@
+{
+    "Dad": {
+        "Dad": "Sibling",
+        "Sibling": "Uncle",
+        "Grandpa": "Son"
+     },
+    "Sibling": {
+        "Sibling": "Sibling",
+        "Dad": "Dad",
+        "Son": "Dad"
+     }
+}
