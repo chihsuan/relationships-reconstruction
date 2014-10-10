@@ -3,7 +3,7 @@
 import sys
 import cv2
  
-def main():
+def scene_change_detection():
     if len(sys.argv) < 2:
         print "Error - file name must be specified as first argument."
         return
@@ -62,4 +62,4 @@ def main():
     cap.release()
  
 if __name__ == "__main__":
-    main()
+    scene_change_detection()
