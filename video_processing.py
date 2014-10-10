@@ -20,7 +20,7 @@ from modules import time_format
 from modules import cv_image
 from modules import cv_face
 
-FRAME_INTERVAL = 12
+FRAME_INTERVAL = 24
 EXPAND_TIME = 5
 OUTPUT_PATH = 'output/'
 roles_foldr = 'input/roles/'
@@ -65,8 +65,15 @@ def video_processing(movie_file, search_result_file, role_list_file):
               
                 count = 0
                 for face_position in face_position_list:
-                    role_name = role_identify( image_name + '-' + \
-                                            str(count) + '.jpg', role_list)
+                    '''role_name = role_identify( image_name + '-' + \
+                                            str(count) + '.jpg', role_list)'''
+                    print len(face_position_list)
+                    print role_list
+                    role_name = raw_input('name? ')
+                    try:
+                        role_name = role_list[int(role_name)-1]
+                    except:
+                        role_name = raw_input('name? ')
                     count += 1
                     face_number += 1
                     if role_name == []:
