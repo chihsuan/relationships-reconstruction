@@ -5,48 +5,44 @@ import sys
 
 from modules import json_io
 
+from graph_class.SocialGraph import SocialGraph
+from graph_class.BipartiteGraph import BipartiteGraph
 
-def relationship_minig(single_graph_file, pair_graph_file):
-    
-    single_grpah = json_io.read_json(single_graph_file)
+def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, dir_file, clip_file):
+
+    # load files
+    single_graph = json_io.read_json(single_graph_file)
     pair_graph = json_io.read_json(pair_graph_file)
+   
+    # class
+    bi_graph = BipartiteGraph(single_graph, pair_graph) 
+    social_graph = SocialGraph()
+    social_graph.file_to_db(social_graph_file)
+    social_graph.load_pattern(dir_file, clip_file)
+
+    # statistic weight
+    pair_keywords = bi_graph.get_pair_keywords()
+    keyword_pairs = bi_graph.get_keywords_pair()
+
+    # alg
+    for role_pair, keywords in pair_keywords.iteritems():
+        top_keyword = max(keywords, key=keywords.get)
+        if role_pair == max(keyword_pairs[top_keyword], key=keyword_pairs[top_keyword].get):
+            source, target = bi_graph.get_direction(role_pair, top_keyword)
+            print source, '-->', top_keyword, '-->', target
+            
+            valid_tag = social_graph.pattern_matching(source, target, top_keyword)
+            if valid_tag:
+                social_graph.relationship_tagging(source, target, top_keyword)
+            
+            bi_graph.update_weighting(valid_tag,  role_pair, top_keyword)
     
-    keywords_role(pair_graph)
-
-def roles_keyword(pair_graph):
-
-    roles_keyword = {}
-    for keyword_t, roles in pair_graph.iteritems():
-        for role, values in roles.iteritems():
-            if role not in roles_keyword:
-                roles_keyword[role] = {}
-
-            if values['keyword'] in roles_keyword[role]:
-                roles_keyword[role][values['keyword']] += values['weight']
-            else:
-                roles_keyword[role][values['keyword']] = values['weight']
-
-    for role, keywords in roles_keyword.iteritems():
-        print role, max(keywords, key=keywords.get)
-
-def keywords_role(pair_graph):
-
-    keyword_roles = {}
-    for keyword_t, roles in pair_graph.iteritems():
-        for role, values in roles.iteritems():
-            if role not in keyword_roles:
-                keyword_roles[values['keyword']] = {}
-
-            if role in keyword_roles[values['keyword']]:
-                keyword_roles[values['keyword']][role] += values['weight']
-            else:
-                keyword_roles[values['keyword']][role] = values['weight']
-
-    for keyword, roles in keyword_roles.iteritems():
-        print keyword, max(roles, key=roles.get)
+    social_graph.clear()
+    social_graph.shutdown()
 
 if __name__=='__main__':
     if len(sys.argv) > 2:
-        relationship_minig(sys.argv[1], sys.argv[2])
+        relationship_minig(sys.argv[1], sys.argv[2], sys.argv[3])
     else:
-        relationship_minig('output/single_graph.json', 'output/pair_graph.json')
+        relationship_minig('output/single_graph.json', 'output/pair_graph.json',\
+                'output/social_graph.json', 'input/dir_rel.json', 'input/clip_rel.json')
