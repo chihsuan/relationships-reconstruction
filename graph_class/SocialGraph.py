@@ -1,7 +1,6 @@
 #!/usr/bin/env python2.7
 # -*- coding: utf-8 -*-
 
-'''write data to neo4j'''
 
 import sys
 
@@ -10,7 +9,7 @@ from neo4j import GraphDatabase
 from modules import json_io
 from modules import csv_io
 
-class GraphDB:
+class SocialGraph:
 
     def __init__(self, neo4j_url="graph.db"):
         self.db = GraphDatabase(neo4j_url) 
@@ -37,20 +36,46 @@ class GraphDB:
                     self.rels.append(source.knows(target))
             return self.nodes
 
-            
+    def load_pattern(self, dir_file, clip_file):
+        self.dir_patterns = json_io.read_json(dir_file)
+        self.clip_patterns = json_io.read_json(clip_file)
+
     def pattern_matching(self, source_name, target_name, keyword):
         source = self.nodes[source_name]
         target = self.nodes[target_name]
-        q = '''START me=node({s_id}) MATCH (me)-[:knows]->(remote_friend) \
-                WHERE me.name = {s_name} RETURN remote_friend'''
-        result = self.db.query(q, s_id=source.id ,s_name=source_name)
         
-        for result in result:
-            for name in result['remote_friend'].values():
-                print name
+        for s in [[source, target_name], [target, source_name]]:
+            result = self.dir_query(s[0], s[1]) 
+            if result == keyword: 
+                return True
+            elif result is not None:
+                return False
+        
+        return True
 
-    def relationship_tagging(self, pair, target, keyword):
-        pass
+    def dir_query(self, source, target_name):
+        dir_query = '''START source=node({s_id}) \
+                        MATCH (source)-[r1]-(middleman)-[r2]->(target) \
+                        WHERE target.name = {t_name} RETURN r1, r2'''
+
+        results = self.db.query(dir_query, s_id=source.id, t_name=target_name)
+
+        for result in results:
+            if 'rel' in result['r1'].keys() and 'rel' in result['r2'].keys():
+                relationship1 = result['r1']['rel']
+                relationship2 = result['r2']['rel']
+                print relationship1, relationship2
+                predict_rel = self.dir_patterns[relationship1][relationship2]
+                print predict_rel
+                return predict_rel
+                
+        return None
+
+    def relationship_tagging(self, source_name, target_name, keyword):
+        source = self.nodes[source_name]
+        target = self.nodes[target_name]
+        with self.db.transaction:
+            relationship = source.knows(target, rel=keyword)
 
     def clear(self):
         with self.db.transaction:
