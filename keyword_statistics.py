@@ -19,7 +19,6 @@ from collections import Counter
 from modules import csv_io
 from modules import time_format
 
-MAX_KEYWORDS_IN_ONE_INTERVAL = 3
 OUTPUT_ROOT_PATH = 'output/'
 
 def keyword_statistics(relationship_file, subtitle_file):
@@ -29,13 +28,12 @@ def keyword_statistics(relationship_file, subtitle_file):
 
     relation_patterns = {}
     for relation in relation_list:
-        relation_patterns[relation] = '[^(my)|^(your)|^(her)|^(his)|^(their)][\s]*' + relation.lower() + "[^'\w]"
-
-    time_to_keyword = []
+        relation_patterns[relation] = '[^(my)|^(your)|^(her)|^(his)|^(their)][\s]*' \
+                                      + relation.lower() + "[^'\w]"
+    
     subtitle_interval = []
-    keyword_number = 0
+    time_to_keyword = []
     keyword_list = []
-    keyword_count = {}
     for line in subtitle:
         if line.strip():
             subtitle_interval.append(line)
@@ -45,25 +43,15 @@ def keyword_statistics(relationship_file, subtitle_file):
             if len(subtitle_interval) == 2:
                 subtitle_time = line[:-2]
                 continue
-                         
-            for relation in relation_patterns:
-                if keyword_number < MAX_KEYWORDS_IN_ONE_INTERVAL and re.search(relation_patterns[relation], line.lower()):
-                    time_to_keyword.append([subtitle_time, relation])
-                    keyword_number += 1
-                    if relation not in keyword_list:
-                       keyword_list.append(relation) 
-                       keyword_count[relation] = 1
-                    else:
-                       keyword_count[relation] += 1 
+            
+            time_to_keyword, keyword_list = keyword_matching(relation_patterns, line, subtitle_time,\
+                                                             time_to_keyword, keyword_list)
         else:
-            if keyword_number == MAX_KEYWORDS_IN_ONE_INTERVAL:
+            subtitle_interval=[]
+            '''if keyword_number == MAX_KEYWORDS_IN_ONE_INTERVAL:
                 for i in range(MAX_KEYWORDS_IN_ONE_INTERVAL):
                     time_to_keyword.pop()
-            subtitle_interval=[]
-            keyword_number=0
-
-    count = Counter(values[1] for values in time_to_keyword)
-    total_count = sum(keyword_count.values())
+            keyword_number=0'''
     
     frame_to_keyword = []
     for pair in time_to_keyword:
@@ -73,6 +61,17 @@ def keyword_statistics(relationship_file, subtitle_file):
 
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'statistics_result.csv', frame_to_keyword)
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keyword_list.csv', [keyword_list])
+
+
+def keyword_matching(relation_patterns, line, subtitle_time, time_to_keyword, keyword_list):
+
+    for relation in relation_patterns:
+        if re.search(relation_patterns[relation], line.lower()):
+            time_to_keyword.append([subtitle_time, relation])
+            if relation not in keyword_list:
+               keyword_list.append(relation) 
+                
+    return time_to_keyword, keyword_list
 
 def read_subtitle_file(subtitle_file):
 
