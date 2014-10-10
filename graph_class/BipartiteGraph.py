@@ -38,7 +38,7 @@ class BipartiteGraph:
         keyword_roles = {}
         for keyword_t, roles in self.pair_graph.iteritems():
             for role, values in roles.iteritems():
-                if role not in keyword_roles:
+                if values['keyword'] not in keyword_roles:
                     keyword_roles[values['keyword']] = {}
 
                 if role in keyword_roles[values['keyword']]:
@@ -47,10 +47,25 @@ class BipartiteGraph:
                     keyword_roles[values['keyword']][role] = values['weight']
         
         '''for keyword, roles in keyword_roles.iteritems():
-            max(roles, key=roles.get)'''
+            max_role = max(roles, key=roles.get)
+            print keyword, max_role, sorted(roles, key=roles.get)[-1]'''
 
         self.keyword_roles = keyword_roles
         return keyword_roles
+
+    def get_direction(self, role_pair, keyword):
+        role1, role2 =  role_pair.split('-')
+        role1_weight = 0
+        role2_weight = 0
+        for keyword_t, roles in self.single_graph.iteritems():
+            if keyword in keyword_t and role1 in roles and role2 in roles:
+                role1_weight += roles[role1]['weight']
+                role2_weight += roles[role2]['weight']
+        
+        if role1_weight < role2_weight:
+            return role1, role2
+        else:
+            return role2, role1
 
     def update_weighting(self, valid_tag, pair, keyword):
         pass
