@@ -10,17 +10,10 @@ from graph_class.BipartiteGraph import BipartiteGraph
 
 def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, dir_file, clip_file):
 
-    # load files
     single_graph = json_io.read_json(single_graph_file)
     pair_graph = json_io.read_json(pair_graph_file)
    
-    # class
-    bi_graph = BipartiteGraph(single_graph, pair_graph) 
-    social_graph = SocialGraph()
-    social_graph.file_to_db(social_graph_file)
-    social_graph.load_pattern(dir_file, clip_file)
-
-    pair_keywords = bi_graph.get_pair_keywords()
+    bi_graph, social_graph = graph_init(single_graph, pair_graph, dir_file, clip_file)
 
     change = True
     # iterator algorithm
@@ -31,31 +24,43 @@ def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, di
         keyword_pairs = bi_graph.get_keywords_pair()
 
         for role_pair, keywords in pair_keywords.iteritems():
-            top_keyword = max(keywords, key=keywords.get)
-            if role_pair == max(keyword_pairs[top_keyword], key=keyword_pairs[top_keyword].get):
-                source, target = bi_graph.get_direction(role_pair, top_keyword)
+            dominant_keyword = max(keywords, key=keywords.get)
+            if both_important(role_pair, keyword_pairs, dominant_keyword):
+                source, target = bi_graph.get_direction(role_pair, dominant_keyword)
                 
-                #print source, '-->', top_keyword, '-->', target
+                #print source, '-->', dominant_keyword, '-->', target
                 if social_graph.has_relationship(source, target):
                     valid_tag = False
                 else:
-                    valid_tag = social_graph.pattern_matching(source, target, top_keyword)
+                    valid_tag = social_graph.pattern_matching(source, target, dominant_keyword)
 
                 if valid_tag != False:
                     change = True 
                     if type(valid_tag) != unicode:
-                        social_graph.relationship_tagging(source, target, top_keyword)
-                        print source, '-->', top_keyword, '-->', target
+                        social_graph.relationship_tagging(source, target, dominant_keyword)
+                        print source, '-->', dominant_keyword, '-->', target
                     else:
                         social_graph.relationship_tagging(source, target, valid_tag)
                         print source, '-->', valid_tag, '-->', target
 
-                bi_graph.remove_edges(role_pair, top_keyword)
-                bi_graph.update_weighting(valid_tag,role_pair, top_keyword)
+                bi_graph.remove_edges(role_pair, dominant_keyword)
+                bi_graph.update_weighting(valid_tag,role_pair, dominant_keyword)
 
-
-    #social_graph.clear()
+    social_graph.clear()
     social_graph.shutdown()
+
+def graph_init(single_graph, pair_graph, dir_file, clip_file):
+    bi_graph = BipartiteGraph(single_graph, pair_graph) 
+    social_graph = SocialGraph()
+    social_graph.file_to_db(social_graph_file)
+    social_graph.load_pattern(dir_file, clip_file)
+    return bi_graph, social_graph
+
+
+def both_important(role_pair, keyword_pairs, dominant_keyword):
+    return role_pair == max(keyword_pairs[dominant_keyword], \
+                            key=keyword_pairs[dominant_keyword].get)
+
 
 if __name__=='__main__':
     if len(sys.argv) > 2:
