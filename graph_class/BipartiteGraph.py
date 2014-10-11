@@ -67,6 +67,24 @@ class BipartiteGraph:
         else:
             return role2, role1
 
-    def update_weighting(self, valid_tag, pair, keyword):
-        pass
+    def update_weighting(self, valid_tag, role_pair, keyword):
+        for keyword_t, roles in self.pair_graph.iteritems():
+            if role_pair in roles:
+                for role, value in roles.iteritems():
+                    if role != role_pair:
+                        role1, role2 = role.split('-')
+                        if role1 not in role_pair:
+                            value['weight'] += self.single_graph[keyword_t][role1]['weight']
+                        else:
+                            value['weight'] += self.single_graph[keyword_t][role2]['weight']
+
+
+    def remove_edges(self, role_pair, keyword):
+        delete_list = []
+        for keyword_t, roles in self.pair_graph.iteritems():
+            if keyword in keyword_t and role_pair in roles:
+                delete_list.append(keyword_t)
+        for key in delete_list:
+            del self.pair_graph[key]
+    
 
