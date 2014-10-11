@@ -5,7 +5,7 @@ import sys
 import json_io
 import csv_io
 
-def data_to_json(input_file):
+def to_json(input_file):
     
     csv_data = csv_io.read_csv(input_file)
 
@@ -18,4 +18,4 @@ def data_to_json(input_file):
     json_io.write_json('output/social_graph.json', relation)
 
 if __name__=='__main__':
-    data_to_json(sys.argv[1])
+    to_json(sys.argv[1])
