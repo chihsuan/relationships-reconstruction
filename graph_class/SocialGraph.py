@@ -40,6 +40,21 @@ class SocialGraph:
         self.dir_patterns = json_io.read_json(dir_file)
         self.clip_patterns = json_io.read_json(clip_file)
 
+    def has_relationship(self, source_name, target_name):
+        source = self.nodes[source_name]
+        target = self.nodes[target_name]
+
+        query = '''start source=node({s_id}) \
+                        match (source)-[r]->(target) \
+                        where target.name = {t_name} return r'''
+
+        number_rel = self.db.query(query, s_id=source.id, t_name=target_name)['r']
+        if len(number_rel) > 1:
+            return True
+        else:
+            return False
+        
+     
     def pattern_matching(self, source_name, target_name, keyword):
         source = self.nodes[source_name]
         target = self.nodes[target_name]
@@ -48,14 +63,46 @@ class SocialGraph:
             result = self.dir_query(s[0], s[1]) 
             if result == keyword: 
                 return True
-            elif result is not None:
+            elif result:
+                return result
+            elif result == False:
                 return False
-        
+         
+        result = self.clip_query(source, target_name) 
+        if result == keyword: 
+            return True
+        elif result:
+            return result
+        elif result == False:
+            return False
         return True
 
     def dir_query(self, source, target_name):
         dir_query = '''START source=node({s_id}) \
-                        MATCH (source)-[r1]-(middleman)-[r2]->(target) \
+                        MATCH (source)-[r1]->(middleman)-[r2]->(target) \
+                        WHERE target.name = {t_name} RETURN r1, r2'''
+
+        results = self.db.query(dir_query, s_id=source.id, t_name=target_name)
+
+        for result in results:
+            if 'rel' in result['r1'].keys() and \
+                    'rel' in result['r2'].keys():
+                relationship1 = result['r1']['rel']
+                relationship2 = result['r2']['rel']
+                print relationship1, relationship2,
+                if relationship2 in self.dir_patterns[relationship1]:
+                    predict_rel = self.dir_patterns[relationship1][relationship2]
+                else:
+                    return False
+
+                print predict_rel
+                return predict_rel
+                
+        return None
+
+    def clip_query(self, source, target_name):
+        dir_query = '''START source=node({s_id}) \
+                        MATCH (source)-[r1]->(middleman)<-[r2]-(target) \
                         WHERE target.name = {t_name} RETURN r1, r2'''
 
         results = self.db.query(dir_query, s_id=source.id, t_name=target_name)
@@ -64,12 +111,13 @@ class SocialGraph:
             if 'rel' in result['r1'].keys() and 'rel' in result['r2'].keys():
                 relationship1 = result['r1']['rel']
                 relationship2 = result['r2']['rel']
-                print relationship1, relationship2
-                predict_rel = self.dir_patterns[relationship1][relationship2]
+                print relationship1, relationship2,
+                predict_rel = self.clip_patterns[relationship1][relationship2]
                 print predict_rel
                 return predict_rel
                 
         return None
+
 
     def relationship_tagging(self, source_name, target_name, keyword):
         source = self.nodes[source_name]
