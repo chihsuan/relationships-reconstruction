@@ -17,19 +17,6 @@ def scene_change_detection():
     else:
         print "Parsing video %s..." % sys.argv[1]
  
-    # Do stuff with cap here.
-    width  = cap.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
-    height = cap.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
-    print "Video Resolution: %d x %d" % (width, height)
-     
-    '''while True:
-        (rv, im) = cap.read()   # im is a valid image if and only if rv is true
-        if not rv:
-            break
-        # Do stuff with im here.
-     
-    frame_count = cap.get(cv2.cv.CV_CAP_PROP_POS_FRAMES)  # current capture position
-    print "Read %d frames from video." % frame_count '''
  
     # Allow the threshold to be passed as an optional second argument to the script.
     threshold = 15
