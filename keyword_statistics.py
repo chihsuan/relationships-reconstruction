@@ -4,12 +4,12 @@
 '''
 This module is to search keywords in move subtitle.
 
-Define Keyword: keyword is name or term relationship.
-ex: Jack, Dad
+Define Keyword: keyword are relationships.
+ex: Dad
 
 Intput: -> 1 realationship_file 2. subtitle_file
 Output: keyword to time in subtitle and keyword_list 
-        -> 1.search_result_csv_file 2. keyword_list
+        -> 1.statistics_result_csv_file 2. keyword_list
 '''
 
 import sys
@@ -48,19 +48,18 @@ def keyword_statistics(relationship_file, subtitle_file):
                                                              time_to_keyword, keyword_list)
         else:
             subtitle_interval=[]
-            '''if keyword_number == MAX_KEYWORDS_IN_ONE_INTERVAL:
-                for i in range(MAX_KEYWORDS_IN_ONE_INTERVAL):
-                    time_to_keyword.pop()
-            keyword_number=0'''
-    
-    frame_to_keyword = []
-    for pair in time_to_keyword:
-        start_frame, end_frame = time_format.to_frame(pair[0])
-        new_pair = [start_frame, end_frame, pair[1]]
-        frame_to_keyword.append(new_pair)
+
+    frame_to_keyword = to_frame_keyword(time_to_keyword)
 
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'statistics_result.csv', frame_to_keyword)
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keyword_list.csv', [keyword_list])
+
+
+def read_subtitle_file(subtitle_file):
+
+    with open(subtitle_file, 'r') as subtitle:
+        subtitle = subtitle.readlines()
+    return subtitle
 
 
 def keyword_matching(relation_patterns, line, subtitle_time, time_to_keyword, keyword_list):
@@ -73,12 +72,15 @@ def keyword_matching(relation_patterns, line, subtitle_time, time_to_keyword, ke
                 
     return time_to_keyword, keyword_list
 
-def read_subtitle_file(subtitle_file):
+def to_frame_keyword(time_to_keyword): 
 
-    with open(subtitle_file, 'r') as subtitle:
-        subtitle = subtitle.readlines()
-    return subtitle
+    frame_to_keyword = []
+    for pair in time_to_keyword:
+        start_frame, end_frame = time_format.to_frame(pair[0])
+        new_pair = [start_frame, end_frame, pair[1]]
+        frame_to_keyword.append(new_pair)
 
+    return frame_to_keyword
 
 if __name__=='__main__':
     if len(sys.argv) == 4:
