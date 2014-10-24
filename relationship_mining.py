@@ -5,8 +5,8 @@ import sys
 
 from modules import json_io
 
-from graph_class.SocialGraph import SocialGraph
-from graph_class.BipartiteGraph import BipartiteGraph
+from my_class.SocialGraph import SocialGraph
+from my_class.BipartiteGraph import BipartiteGraph
 
 def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, dir_file, clip_file):
 
