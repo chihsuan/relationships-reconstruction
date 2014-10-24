@@ -28,9 +28,11 @@ def keyword_statistics(relationship_file, subtitle_file):
 
     relation_patterns = {}
     for relation in relation_list:
-        relation_patterns[relation] = '[^(my)|^(your)|^(her)|^(his)|^(their)][\s]*' \
-                                      + relation.lower() + "[^'\w]"
-    
+        '''relation_patterns[relation] = '(^' + relation.lower() + '[,|\.|\?|\!].*)|' + \
+                                        '(?<!(\sher|\shis|\sour|heir|your))\s+' + relation.lower() + "[\.|,|\?|!|>]" '''
+        relation_patterns[relation] = '(^' + relation.lower() + '[,|\.|\?|\!].*)|' + \
+                                        '(?<!(her|his|our|eir|our|\smy|.\sa))\s+' + relation.lower() + "[\.|,|\?|!|>]" 
+        
     subtitle_interval = []
     time_to_keyword = []
     keyword_list = []
@@ -83,7 +85,7 @@ def to_frame_keyword(time_to_keyword):
     return frame_to_keyword
 
 if __name__=='__main__':
-    if len(sys.argv) == 4:
+    if len(sys.argv) == 3:
         keyword_statistics(sys.argv[1], sys.argv[2])
     else:
         keyword_statistics('input/relationship.csv', 'input/movie.srt')
