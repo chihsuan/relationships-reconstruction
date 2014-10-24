@@ -18,33 +18,32 @@ def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, di
     change = True
    # iterator algorithm1
     while change:
-        change = False
-        # statistic weight
-        pair_keywords = bi_graph.get_pair_keywords()
-        keyword_pairs = bi_graph.get_keywords_pair()
-        
-        for role_pair, keywords in pair_keywords.iteritems():
-            dominant_keyword = max(keywords, key=keywords.get)
-            if both_important(role_pair, keyword_pairs, dominant_keyword):
-                
-                source, target = bi_graph.get_direction(role_pair, dominant_keyword)
-                valid_tag = valid_checking(social_graph, source, target, dominant_keyword)
-                
-                if valid_tag != False:
-                    if type(valid_tag) != unicode:
-                        change = True
-                        social_graph.relationship_tagging(source, target, dominant_keyword)
-                        print source, '-->', dominant_keyword, '-->', target
-                    else:
-                        social_graph.relationship_tagging(source, target, valid_tag)
-                        print source, '-->', valid_tag, '-->', target
+        role_pair, dominant_keyword = bi_graph.dominant_pair()
+        if role_pair is None:
+            break
 
-                bi_graph.remove_edges(role_pair, dominant_keyword)
-                bi_graph.update_weighting(valid_tag, role_pair, dominant_keyword)
-   
+        source, target, confidence = bi_graph.get_direction(role_pair, dominant_keyword)
+        valid_tag = valid_checking(social_graph, source, target, dominant_keyword)
+        
+
+        if valid_tag != False and confidence > 1:
+            if type(valid_tag) != unicode:
+                change = True
+                print source, '-->', dominant_keyword, '-->', target
+                social_graph.relationship_tagging(source, target, dominant_keyword, confidence)
+            else:
+                print source, '-->', valid_tag, '-->', target
+                social_graph.relationship_tagging(source, target, valid_tag, confidence)
+
+        bi_graph.update_weighting(valid_tag, role_pair, dominant_keyword)
+        if valid_tag:
+            bi_graph.remove_keyword(role_pair, dominant_keyword)
+        else:
+            bi_graph.remove_edges(role_pair, dominant_keyword)
+
 
     # iterator algorithm2
-    change = True
+    '''change = True
     while change:
         change = False
         # statistic weight
@@ -63,11 +62,16 @@ def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, di
                     else:
                         social_graph.relationship_tagging(source, target, valid_tag)
                         print source, '-->', valid_tag, '-->', target
-           bi_graph.remove_edges(role_pair, dominant_keyword)
+           
            bi_graph.update_weighting(valid_tag, role_pair, dominant_keyword)
+           if valid_tag:
+                bi_graph.remove_keyword(role_pair, dominant_keyword)
+           else:
+                bi_graph.remove_edges(role_pair, dominant_keyword)'''
+           
 
 
-    #social_graph.clear()
+    social_graph.clear()
     social_graph.shutdown()
 
 def graph_init(single_graph, pair_graph, social_graph_file, dir_file, clip_file):
@@ -80,17 +84,11 @@ def graph_init(single_graph, pair_graph, social_graph_file, dir_file, clip_file)
 def valid_checking(social_graph, source, target, dominant_keyword):
 
 
-    if social_graph.has_relationship(source, target):
+    if social_graph.has_relationship(source, target) or social_graph.has_relationship(target, source):
         valid_tag = False
     else:
         valid_tag = social_graph.pattern_matching(source, target, dominant_keyword)
     return valid_tag
-
-def both_important(role_pair, keyword_pairs, dominant_keyword):
-    return role_pair == max(keyword_pairs[dominant_keyword], \
-                            key=keyword_pairs[dominant_keyword].get)
-
-
 
 if __name__=='__main__':
     if len(sys.argv) > 2:
