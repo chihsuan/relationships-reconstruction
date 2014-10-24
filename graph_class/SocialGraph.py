@@ -59,15 +59,24 @@ class SocialGraph:
         source = self.nodes[source_name]
         target = self.nodes[target_name]
         
-        for s in [[source, target_name], [target, source_name]]:
-            result = self.dir_query(s[0], s[1]) 
-            if result == keyword: 
-                return True
-            elif result:
-                return result
-            elif result == False:
-                return False
-         
+        result = self.dir_query(source, target_name) 
+        if result == keyword: 
+            return True
+        elif result:
+            return result
+        elif result == False:
+            return False
+
+        result = self.dir_query(target, source_name) 
+        if result == keyword: 
+            return True
+        elif result:
+            return result
+        elif result == False:
+            return False
+
+
+     
         result = self.clip_query(source, target_name) 
         if result == keyword: 
             return True
@@ -112,18 +121,24 @@ class SocialGraph:
                 relationship1 = result['r1']['rel']
                 relationship2 = result['r2']['rel']
                 print relationship1, relationship2,
-                predict_rel = self.clip_patterns[relationship1][relationship2]
+                if relationship2 in self.clip_patterns[relationship1]:
+                    predict_rel = self.clip_patterns[relationship1][relationship2]
+                else:
+                    return False
                 print predict_rel
                 return predict_rel
                 
         return None
 
 
-    def relationship_tagging(self, source_name, target_name, keyword):
+    def relationship_tagging(self, source_name, target_name, keyword, confidence):
         source = self.nodes[source_name]
         target = self.nodes[target_name]
         with self.db.transaction:
             relationship = source.knows(target, rel=keyword)
+            if confidence <= 2:
+                print source_name + ' <-- ' + keyword + ' <-- ' + target_name
+                relationship = target.knows(source, rel=keyword)
 
     def clear(self):
         with self.db.transaction:
