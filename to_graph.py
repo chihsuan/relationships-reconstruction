@@ -49,4 +49,8 @@ def to_pair(keyword_dic):
     return pair_bipartite_graph
 
 if __name__=='__main__':
-    build_bipartite_graph(sys.argv[1])
+    if len(sys.argv) > 1:
+        build_bipartite_graph(sys.argv[1])
+    else:
+        build_bipartite_graph('output/keywordt_roles.json')
+
