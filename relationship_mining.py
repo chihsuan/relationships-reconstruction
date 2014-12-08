@@ -26,7 +26,7 @@ def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, di
         valid_tag = valid_checking(social_graph, source, target, dominant_keyword)
         
 
-        if valid_tag != False and confidence > 1:
+        if valid_tag != False and confidence > 0:
             if type(valid_tag) != unicode:
                 change = True
                 print source, '-->', dominant_keyword, '-->', target
