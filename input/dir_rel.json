@@ -1,22 +1,29 @@
 {
     "Dad":{
         "Dad": "Grandpa",
-        "Son": "Sibing",
+        "Son": "Sibling",
         "Mom": "Grandmother"
     },
     "Son":{
-        "Dad": "Sibing",
+        "Dad": "Sibling",
         "Son": "Grandson",
-        "Sibing": "son"
+        "Sibling": "son"
     },
     "Mom":{
         "Dad": "Grandpa"
     },
     "Father":{
         "Dad": "Grandpa",
-        "Son": "Sibing"
+        "Son": "Sibling"
     },
     "Daughter":{
         "Son": "Grandson"
+    },
+    "Sibling":{
+        "Dad": "Dad",
+        "Mom": "Mom"
+    },
+    "Grandpa":{
+        "Son": "Family"
     }
  }
