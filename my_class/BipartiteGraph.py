@@ -57,14 +57,15 @@ class BipartiteGraph:
         self.get_keywords_pair()
 
         if self.keyword_roles == {}:
-            return None, None
+            return None, None, 0
 
         role_pair = sorted(self.roles_keyword, key=lambda k :\
                 self.key_weight(self.roles_keyword[k]), reverse=True)[0]
-    
         keywords  = self.roles_keyword[role_pair]  
+        confidence = self.key_weight(keywords)
         dominant_keyword = max(keywords, key=keywords.get)
-        return role_pair, dominant_keyword
+
+        return role_pair, dominant_keyword, confidence
 
     def get_direction(self, role_pair, keyword):
         role1, role2 =  role_pair.split('-')
@@ -77,13 +78,16 @@ class BipartiteGraph:
                 elif roles[role2]['speaker']:
                     role2_weight += roles[role2]['weight']
         
-        confidence = role1_weight + role2_weight
-        #print role1, role1_weight, role2, role2_weight
+        total_weight = role1_weight + role2_weight
+        if total_weight == 0:
+            return role1, role2, 0
+
         if role1_weight > role2_weight:
-            return role1, role2, confidence
+            return role1, role2, role1_weight / total_weight
         elif role1_weight < role2_weight:
-            return role2, role1, confidence
+            return role2, role1, role2_weight / total_weight 
         else:
+            dir_confidenece = 0.5 if confidence != 0 else 0
             return role1, role2, 0.5
 
     def update_weighting(self, valid_tag, role_pair, keyword):
