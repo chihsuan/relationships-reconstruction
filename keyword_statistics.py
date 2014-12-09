@@ -2,10 +2,10 @@
 # -*- coding: utf-8 -*-
 
 '''
-This module is to search keywords in move subtitle.
+This program is to search keywords in move subtitles.
 
-Define Keyword: keyword are relationships.
-ex: Dad
+Define Keyword: keywords are relationships.
+e.g: Dad, Mom
 
 Intput: -> 1 realationship_file 2. subtitle_file
 Output: keyword to time in subtitle and keyword_list 
@@ -28,10 +28,8 @@ def keyword_statistics(relationship_file, subtitle_file):
 
     relation_patterns = {}
     for relation in relation_list:
-        '''relation_patterns[relation] = '(^' + relation.lower() + '[,|\.|\?|\!].*)|' + \
-                                        '(?<!(\sher|\shis|\sour|heir|your))\s+' + relation.lower() + "[\.|,|\?|!|>]" '''
-        relation_patterns[relation] = '(^' + relation.lower() + '[,|\.|\?|\!].*)|' + \
-                                        '(?<!(her|his|our|eir|our|\smy|.\sa))\s+' + relation.lower() + "[\.|,|\?|!|>]" 
+        relation_patterns[relation] = '(^[->]*' + relation.lower() + '[,|\.|\?|\!].*)' + '|' + \
+                                      '(?<!(her|his|our|eir|our|\smy|.\sa))\s+' + relation.lower() + '[\.|,|\?|!|>]'
         
     subtitle_interval = []
     time_to_keyword = []
@@ -53,7 +51,7 @@ def keyword_statistics(relationship_file, subtitle_file):
 
     frame_to_keyword = to_frame_keyword(time_to_keyword)
 
-    csv_io.write_csv(OUTPUT_ROOT_PATH + 'statistics_result.csv', frame_to_keyword)
+    csv_io.write_csv(OUTPUT_ROOT_PATH + 'statistics_result.csv', time_to_keyword)
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keyword_list.csv', [keyword_list])
 
 
@@ -85,6 +83,7 @@ def to_frame_keyword(time_to_keyword):
     return frame_to_keyword
 
 if __name__=='__main__':
+    print __doc__
     if len(sys.argv) == 3:
         keyword_statistics(sys.argv[1], sys.argv[2])
     else:
