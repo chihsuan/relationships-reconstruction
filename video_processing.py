@@ -22,7 +22,7 @@ from modules import cv_face
 
 FRAME_INTERVAL = 18
 FORWORD_EXPAND_TIME = 3
-BACKWORD_EXPAND_TIME = -0.5
+BACKWORD_EXPAND_TIME = 0.5
 OUTPUT_PATH = 'output/'
 roles_foldr = 'input/roles/'
 
@@ -41,7 +41,7 @@ def video_processing(movie_file, role_list_file, search_result_file, role_input_
     for row in keyword_search_result:
 
         start_frame, end_frame, keyword = float(row[0]), float(row[1]), row[2]
-        frame_position = round(start_frame) - 24 * BACKWORD_EXPAND_TIME
+        frame_position = round(start_frame) + 24 * BACKWORD_EXPAND_TIME
         finish_frame = round(end_frame) + 24 * FORWORD_EXPAND_TIME
         
         keyword_id += 1
@@ -60,7 +60,8 @@ def video_processing(movie_file, role_list_file, search_result_file, role_input_
                 count = 0
                 for face_position in face_position_list:
                     
-                    if role_input_way == 0:
+                    if role_input_way == 'auto':
+                        break
                         role_name = role_identify( image_name + '-' + str(count) + '.jpg', role_list)
                     else:
                         role_name = role_input(role_list)
