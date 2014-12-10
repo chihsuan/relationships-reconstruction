@@ -62,10 +62,11 @@ class BipartiteGraph:
         role_pair = sorted(self.roles_keyword, key=lambda k :\
                 self.key_weight(self.roles_keyword[k]), reverse=True)[0]
         keywords  = self.roles_keyword[role_pair]  
+        dominant_keyword = max(keywords, key=keywords.get)
         confidence = self.key_weight(keywords)
         dominant_keyword = max(keywords, key=keywords.get)
 
-        return role_pair, dominant_keyword, confidence
+        return role_pair, dominant_keyword, keywords[dominant_keyword]
 
     def get_direction(self, role_pair, keyword):
         role1, role2 =  role_pair.split('-')
@@ -81,7 +82,7 @@ class BipartiteGraph:
         total_weight = role1_weight + role2_weight
         if total_weight == 0:
             return role1, role2, 0
-
+        
         if role1_weight > role2_weight:
             return role1, role2, role1_weight / total_weight
         elif role1_weight < role2_weight:
