@@ -3,7 +3,7 @@
 
 '''
 This program is to detect the face in movie with two_entity_file and keyword_search_result (detect in specific frame)
-input: 1.movie_file (video format) 2. search_result_file
+input: 1.movie_file (video format) 2. role_list 3. search_result_file 4. face reg: auto reg or not
 
 '''
 
@@ -147,4 +147,5 @@ def role_identify(img_name, role_list):
         
 
 if __name__ == '__main__':
+    print __doc__
     video_processing(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

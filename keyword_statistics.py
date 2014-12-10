@@ -51,7 +51,7 @@ def keyword_statistics(relationship_file, subtitle_file):
 
     frame_to_keyword = to_frame_keyword(time_to_keyword)
 
-    csv_io.write_csv(OUTPUT_ROOT_PATH + 'statistics_result.csv', time_to_keyword)
+    csv_io.write_csv(OUTPUT_ROOT_PATH + 'statistics_result.csv', frame_to_keyword)
     csv_io.write_csv(OUTPUT_ROOT_PATH + 'keyword_list.csv', [keyword_list])
 
 
