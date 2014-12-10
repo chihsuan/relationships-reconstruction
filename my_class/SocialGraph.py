@@ -98,13 +98,11 @@ class SocialGraph:
                     'rel' in result['r2'].keys():
                 relationship1 = result['r1']['rel']
                 relationship2 = result['r2']['rel']
-                print relationship1, relationship2,
                 if relationship2 in self.dir_patterns[relationship1]:
                     predict_rel = self.dir_patterns[relationship1][relationship2]
                 else:
                     return False
 
-                print predict_rel
                 return predict_rel
                 
         return None
@@ -120,12 +118,10 @@ class SocialGraph:
             if 'rel' in result['r1'].keys() and 'rel' in result['r2'].keys():
                 relationship1 = result['r1']['rel']
                 relationship2 = result['r2']['rel']
-                print relationship1, relationship2,
                 if relationship2 in self.clip_patterns[relationship1]:
                     predict_rel = self.clip_patterns[relationship1][relationship2]
                 else:
                     return False
-                print predict_rel
                 return predict_rel
                 
         return None
