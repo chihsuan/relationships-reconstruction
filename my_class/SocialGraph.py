@@ -75,8 +75,6 @@ class SocialGraph:
         elif result == False:
             return False
 
-
-     
         result = self.clip_query(source, target_name) 
         if result == keyword: 
             return True

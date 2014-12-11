@@ -64,7 +64,6 @@ class BipartiteGraph:
         keywords  = self.roles_keyword[role_pair]  
         dominant_keyword = max(keywords, key=keywords.get)
         confidence = self.key_weight(keywords)
-        dominant_keyword = max(keywords, key=keywords.get)
 
         return role_pair, dominant_keyword, keywords[dominant_keyword]
 
@@ -91,19 +90,16 @@ class BipartiteGraph:
             dir_confidenece = 0.5 if confidence != 0 else 0
             return role1, role2, 0.5
 
-    def update_weighting(self, valid_tag, role_pair, keyword):
+    def update_weighting(self, role_pair, keyword):
         for keyword_t, roles in self.pair_graph.iteritems():
             if role_pair in roles:
                 for role, value in roles.iteritems():
-                    # add up
                     if role != role_pair:
                         role1, role2 = role.split('-')
                         if role1 not in role_pair:
                             value['weight'] += self.single_graph[keyword_t][role1]['weight']
                         else:
                             value['weight'] += self.single_graph[keyword_t][role2]['weight']
-                    if role == role_pair:
-                        pass
 
 
     def remove_keyword(self, role_pair, keyword):
@@ -115,11 +111,9 @@ class BipartiteGraph:
             del self.pair_graph[key]
     
     def remove_edges(self, role_pair, keyword):
-        delete_list = []
         for keyword_t, roles in self.pair_graph.iteritems():
             if keyword in keyword_t and role_pair in roles:
                 del self.pair_graph[keyword_t][role_pair]
-                delete_list.append(keyword_t)
 
     def key_weight(self, keyword):
         value = 0.0
