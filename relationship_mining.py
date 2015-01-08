@@ -15,6 +15,8 @@ def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, di
     
     bi_graph, social_graph = graph_init(single_graph, pair_graph, social_graph_file, dir_file, clip_file)
 
+    output_graph = {'nodes':[], "links":[]}
+    node_dic = {}
     change = True
    # iterator algorithm1
     while change:
@@ -25,21 +27,31 @@ def relationship_minig(single_graph_file, pair_graph_file, social_graph_file, di
         source, target, dir_prob = bi_graph.get_direction(role_pair, dominant_keyword)
         valid_tag = valid_checking(social_graph, source, target, dominant_keyword)
         
+        if source not in node_dic:
+            node_dic[source] = len(node_dic)
+            output_graph['nodes'].append({"group": node_dic[source], "name": source, "ID": node_dic[source]})
+        if target not in node_dic: 
+            node_dic[target] = len(node_dic)
+            output_graph['nodes'].append({"group": node_dic[target], "name": target, "ID": node_dic[target]})
+
         if valid_tag != False and votes >= 1:
             if type(valid_tag) != unicode:
                 print source, '-->', dominant_keyword, '-->', target
+                add_links(output_graph, source, target, dominant_keyword, votes, node_dic)
                 social_graph.relationship_tagging(source, target, dominant_keyword, votes)
             else:
                 print source, '-->', valid_tag, '-->', target
+                add_links(output_graph, source, target, valid_tag, votes, node_dic)
                 social_graph.relationship_tagging(source, target, valid_tag, votes)
             print votes, dir_prob
-        bi_graph.update_weighting(valid_tag, role_pair, dominant_keyword)
+        
+        bi_graph.update_weighting(role_pair, dominant_keyword)
         if valid_tag:
             bi_graph.remove_keyword(role_pair, dominant_keyword)
         else:
             bi_graph.remove_edges(role_pair, dominant_keyword)
 
-
+    json_io.write_json('output/social_graph.json', output_graph)
     social_graph.clear()
     social_graph.shutdown()
 
@@ -52,12 +64,17 @@ def graph_init(single_graph, pair_graph, social_graph_file, dir_file, clip_file)
 
 def valid_checking(social_graph, source, target, dominant_keyword):
 
-
-    if social_graph.has_relationship(source, target) or social_graph.has_relationship(target, source):
+    if social_graph.has_relationship(source, target) \
+        or social_graph.has_relationship(target, source):
         valid_tag = False
     else:
         valid_tag = social_graph.pattern_matching(source, target, dominant_keyword)
     return valid_tag
+
+def add_links(graph, source, target, label, votes, node_dic):
+    source_id = node_dic[source]
+    target_id = node_dic[target]
+    graph['links'].append({"source": source_id, "target": target_id, "value": votes,"label": label})
 
 if __name__=='__main__':
     print __doc__
